@@ -1,12 +1,5 @@
-exports.checkId = (req, res, next, val) => {
-    if (val > 10) {
-        return res.status(404).json({
-            status: 'failed',
-            message: 'not found'
-        })
-    }
-    next();
-}
+const Mentor = require('./../model/mentorModel');
+
 
 exports.getMentor = (req, res) => {
     res.status(200).json({
@@ -22,11 +15,21 @@ exports.getSpecificMentor = (req, res) => {
     });
 }
 
-exports.postMentor = (req, res) => {
-    res.status(201).json({
-        status: 'success',
-        data: req.body
-    });
+exports.postMentor = async (req, res) => {
+    try {
+        const newMentor = await Mentor.create(req.body);
+
+        res.status(201).json({
+            status: 'success',
+            data: newMentor
+        });        
+    } catch(error) {
+        res.status(400).json({
+            status: 'fail',
+            error
+        })
+    }
+
 }
 
 exports.updateMentor = (req, res) => {
