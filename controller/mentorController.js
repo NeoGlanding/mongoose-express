@@ -1,18 +1,41 @@
 const Mentor = require('./../model/mentorModel');
 
 
-exports.getMentor = (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        data: 'mentor getted'
-    });
+exports.getMentor = async (req, res) => {
+    try {
+        const queryObj = {...req.query};
+        const exclusive = ['sort', 'fields', 'page', 'limit']
+
+        exclusive.forEach(el => delete queryObj[el]);
+        
+        const query = Mentor.find(queryObj);
+
+        const mentors = await query;
+        res.status(200).json({
+            status: 'success',
+            data: mentors
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
 }
 
-exports.getSpecificMentor = (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        data: 'specific mentor getted'
-    });
+exports.getSpecificMentor = async (req, res) => {
+    try {
+        const mentor = await Mentor.findById(req.params.id)
+        res.status(200).json({
+            status: 'success',
+            data: mentor
+        });
+    } catch(err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
 }
 
 exports.postMentor = async (req, res) => {
@@ -32,17 +55,36 @@ exports.postMentor = async (req, res) => {
 
 }
 
-exports.updateMentor = (req, res) => {
-    console.log(req.body)
-    res.status(201).json({
-        status:'success',
-        data: req.body
-    });
+exports.updateMentor = async (req, res) => {
+    try {
+        const mentor = await Mentor.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidator: true
+        });
+        res.status(201).json({
+            status:'success',
+            data: mentor
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            error
+        })
+    }
+
 }
 
-exports.deleteMentor = (req, res) => {
-    res.status(201).json({
-        status:'success',
-        data: 'deleted'
-    });
+exports.deleteMentor = async (req, res) => {
+    try {
+        const Data = await Mentor.findByIdAndDelete(req.params.id)
+        res.status(204).json({
+            status:'success',
+            data: 'deleted'
+        });
+    } catch(err) {
+        res.status(404).json({
+            status: 'failed',
+            error: err
+        })
+    }
 }
